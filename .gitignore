@@ -1,3 +1,4 @@
 # ignore json, png files
 *.json
 sprites/
+.idea/
