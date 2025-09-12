@@ -6,7 +6,6 @@ import requests, random, os, json, time
 # runtime = timeit.timeit("main()", setup="from __main__ import main", number=1)
 # print(f"Runtime: {runtime:.2f} seconds")
 
-start = time.time()
 PokeAPI = "https://pokeapi.co/api/v2/pokemon?limit=151" # url to PokeAPI
 
 def getAllPokemon():
@@ -61,16 +60,18 @@ def getAllPokemon():
         return pokedex
 
 def main():
+    start = time.time()
     pokeInfo = getAllPokemon()
+    end = time.time()
+    print(f"Download Time: {end - start:.2f} seconds\n")  # gets runtime of download
     # extracts (name, sprite) tuples from pokedex.json into a list of tuples
-    print("Program start\n")
+    print("Program Start\n")
     print("Menu:")
     print("\t1) Randomize Team")
     print("\t2) View Hall of Fame")
     print("\t3) Quit")
     while True:
         option = input("What would you like to do? (enter 1, 2, or 3): ")
-        print(option)
         if pokeInfo:
             if option == "1":
                 allPokemon = [] # list where tuples are stored
@@ -78,20 +79,38 @@ def main():
                     allPokemon.append((p["name"], p["sprite"]))
                 team = random.sample(allPokemon, 6) # gets 6 random tuples from the list
 
-                save_team = []
+                team_name = input("What is your team's name? ")
+
+                save_team = {team_name: []}
                 for name, sprite in team:
                     print(f"- {name.capitalize()}") # prints pokemon into a team
-                    save_team.append(name.capitalize())
+                    save_team[team_name].append(name.capitalize())
+                print(save_team)
                 if os.path.exists("history.json"):
                     with open(f"history.json", "r") as file:
                             history = json.load(file)
                 else:
-                    history = {"teams   axc": []}
-                history["teams"].append(save_team)
+                    history = []
+                history.append(save_team)
                 with open(f"history.json", "w") as file:
                     json.dump(history, file, indent=4)
+
             elif option == "2":
-                pass
+                print("Hall of Fame Teams:")
+                with open(f"history.json", "r") as file:
+                    history = json.load(file)
+                temp = []
+                for i in history:
+                    for team, pokemon in i.items():
+                        print(f"\t- {team}")
+                        temp.append(team)
+                while True:
+                    choice = input("Which team do you want to view? ")
+                    if choice in temp:
+                        print("True")
+                        break
+                    else:
+                        print("not valid team, choose again")
             elif option == "3":
                 print("Goodbye!")
                 break
@@ -99,5 +118,3 @@ def main():
                 print("Invalid option!")
 
 main()
-end = time.time()
-print(f"\nStatistics:\n\tRuntime: {end - start:.2f} seconds") # gets runtime of single program run
